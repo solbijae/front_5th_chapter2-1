@@ -6,46 +6,95 @@ const prodList = [
   { id: 'p5', name: '상품5', val: 25000, q: 10 },
 ];
 
-const createElement = (tag, props = {}, ...children) => { 
-  // 요소 생성
+const setProps = (element, props) => {
+  for (const [key, value] of Object.entries(props)) {
+    switch (key) {
+      case 'className':
+        element.className = value;
+        break;
+      case 'style':
+        Object.assign(element.style, value);
+        break;
+      case 'dataset':
+        Object.entries(value).forEach(([dataKey, dataVal]) => {
+          element.dataset[dataKey] = dataVal;
+        });
+        break;
+      default:
+        element.setAttribute(key, value);
+        break;
+    }
+  }
+};
+
+const setChildren = (element, children) => {
+  const isDomNode = (child) => child instanceof Node;
+  const isHTML = (child) => child.trim().startsWith('<'); // TODO: 보안상 문제가 생길 수 있으므로 실제 사용시에는 주의가 필요함
+  const isText = (child) =>
+    typeof child === 'string' || typeof child === 'number';
+
+  children.flat().forEach((child) => {
+    if (isDomNode(child)) return element.appendChild(child);
+    if (isHTML(child)) return (element.innerHTML = child);
+    if (isText(child))
+      return element.appendChild(document.createTextNode(child));
+  });
+};
+
+const createDomElement = (tag, props = {}, ...children) => {
   const element = document.createElement(tag);
 
-  // 속성 설정
-  Object.entries(props).forEach(([key, value]) => {
-    if (key === 'className') {
-      element.className = value;
-    } else {
-      element.setAttribute(key, value);
-    }
-  });
+  if (props) setProps(element, props);
+  if (children) setChildren(element, children);
 
-  // 자식 요소 추가
-  children.flat().forEach(child => {
-    if (typeof child === 'string' || typeof child === 'number') {
-      element.appendChild(document.createTextNode(child));
-    } else if (child instanceof Node) {
-      element.appendChild(child);
-    }
-  });
-  
   return element;
 };
 
-let cartDisp = createElement('div', { id: 'cart-items' });
-const hTxt = createElement('h1', { className: 'text-2xl font-bold mb-4' }, '장바구니');
-const sum = createElement('div', { id: 'cart-total', className: 'text-xl font-bold my-4' });
-const sel = createElement('select', { id: 'product-select', className: 'border rounded p-2 mr-2' });
-const addBtn = createElement('button', { id: 'add-to-cart', className: 'bg-blue-500 text-white px-4 py-2 rounded' }, '추가');
-const stockInfo = createElement('div', { id: 'stock-status', className: 'text-sm text-gray-500 mt-2' });
+let cartDisp = createDomElement('div', { id: 'cart-items' });
+const hTxt = createDomElement(
+  'h1',
+  { className: 'text-2xl font-bold mb-4' },
+  '장바구니'
+);
+const sum = createDomElement('div', {
+  id: 'cart-total',
+  className: 'text-xl font-bold my-4',
+});
+const sel = createDomElement('select', {
+  id: 'product-select',
+  className: 'border rounded p-2 mr-2',
+});
+const addBtn = createDomElement(
+  'button',
+  { id: 'add-to-cart', className: 'bg-blue-500 text-white px-4 py-2 rounded' },
+  '추가'
+);
+const stockInfo = createDomElement('div', {
+  id: 'stock-status',
+  className: 'text-sm text-gray-500 mt-2',
+});
 
-var lastSel,
+let lastSel,
   bonusPts = 0,
   totalAmt = 0,
   itemCnt = 0;
+
 function main() {
   var root = document.getElementById('app');
-  const wrap = createElement('div', { className: 'max-w-md mx-auto bg-white rounded-xl shadow-md overflow-hidden md:max-w-2xl p-8' }, hTxt, cartDisp, sum, sel, addBtn, stockInfo);
-  const cont = createElement('div', { className: 'bg-gray-100 p-8' }, wrap);
+  const wrap = createDomElement(
+    'div',
+    {
+      className:
+        'max-w-md mx-auto bg-white rounded-xl shadow-md overflow-hidden md:max-w-2xl p-8',
+    },
+    hTxt,
+    cartDisp,
+    sum,
+    sel,
+    addBtn,
+    stockInfo
+  );
+  const cont = createDomElement('div', { className: 'bg-gray-100 p-8' }, wrap);
 
   updateSelOpts();
 
@@ -85,16 +134,18 @@ function main() {
 function updateSelOpts() {
   sel.innerHTML = '';
   prodList.forEach(function (item) {
-    var opt = document.createElement('option');
-    opt.value = item.id;
-    opt.textContent = item.name + ' - ' + item.val + '원';
+    const opt = createDomElement(
+      'option',
+      { value: item.id },
+      item.name + ' - ' + item.val + '원'
+    );
     if (item.q === 0) opt.disabled = true;
     sel.appendChild(opt);
   });
 }
 
 function calcCart() {
-  console.log("calcCart");
+  console.log('calcCart');
   totalAmt = 0;
   itemCnt = 0;
   var cartItems = cartDisp.children;
@@ -144,9 +195,11 @@ function calcCart() {
   }
   sum.textContent = '총액: ' + Math.round(totalAmt) + '원';
   if (discRate > 0) {
-    var span = document.createElement('span');
-    span.className = 'text-green-500 ml-2';
-    span.textContent = '(' + (discRate * 100).toFixed(1) + '% 할인 적용)';
+    const span = createDomElement(
+      'span',
+      { className: 'text-green-500 ml-2' },
+      '(' + (discRate * 100).toFixed(1) + '% 할인 적용)'
+    );
     sum.appendChild(span);
   }
   updateStockInfo();
@@ -155,11 +208,12 @@ function calcCart() {
 
 const renderBonusPts = () => {
   bonusPts = Math.floor(totalAmt / 1000);
-  var ptsTag = document.getElementById('loyalty-points');
+  let ptsTag = document.getElementById('loyalty-points');
   if (!ptsTag) {
-    ptsTag = document.createElement('span');
-    ptsTag.id = 'loyalty-points';
-    ptsTag.className = 'text-blue-500 ml-2';
+    ptsTag = createDomElement('span', {
+      id: 'loyalty-points',
+      className: 'text-blue-500 ml-2',
+    });
     sum.appendChild(ptsTag);
   }
   ptsTag.textContent = '(포인트: ' + bonusPts + ')';
@@ -199,25 +253,24 @@ addBtn.addEventListener('click', function () {
         alert('재고가 부족합니다.');
       }
     } else {
-      var newItem = document.createElement('div');
-      newItem.id = itemToAdd.id;
-      newItem.className = 'flex justify-between items-center mb-2';
-      newItem.innerHTML =
-        '<span>' +
-        itemToAdd.name +
-        ' - ' +
-        itemToAdd.val +
-        '원 x 1</span><div>' +
-        '<button class="quantity-change bg-blue-500 text-white px-2 py-1 rounded mr-1" data-product-id="' +
-        itemToAdd.id +
-        '" data-change="-1">-</button>' +
-        '<button class="quantity-change bg-blue-500 text-white px-2 py-1 rounded mr-1" data-product-id="' +
-        itemToAdd.id +
-        '" data-change="1">+</button>' +
-        '<button class="remove-item bg-red-500 text-white px-2 py-1 rounded" data-product-id="' +
-        itemToAdd.id +
-        '">삭제</button></div>';
-      console.log("newItem", newItem);
+      const newItemHTML = `
+        <span>${itemToAdd.name} - ${itemToAdd.val}원 x 1</span>
+        <div>
+          <button class="quantity-change bg-blue-500 text-white px-2 py-1 rounded mr-1" data-product-id="${itemToAdd.id}" data-change="-1">-</button>
+          <button class="quantity-change bg-blue-500 text-white px-2 py-1 rounded mr-1" data-product-id="${itemToAdd.id}" data-change="1">+</button>
+          <button class="remove-item bg-red-500 text-white px-2 py-1 rounded" data-product-id="${itemToAdd.id}">삭제</button>
+        </div>
+      `;
+      const newItem = createDomElement(
+        'div',
+        {
+          id: itemToAdd.id,
+          className: 'flex justify-between items-center mb-2',
+        },
+        newItemHTML
+      );
+
+      console.log('newItem', newItem);
       cartDisp.appendChild(newItem);
       itemToAdd.q--;
     }
