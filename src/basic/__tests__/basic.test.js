@@ -151,7 +151,7 @@ describe('basic test', () => {
     });
 
     it('재고가 부족한 경우 추가되지 않고 알림이 표시되는지 확인', () => {
-      sel.valu = 'p5';
+      sel.value = 'p5';
       addBtn.click();
 
       // p5 상품이 장바구니에 추가되었는지 확인
