@@ -313,16 +313,21 @@ function updateStockInfo() {
 main();
 
 function addCartItemQuantity (itemToAdd, item) {
-  const changedQuantity =
-    parseInt(item.querySelector('span').textContent.split('x ')[1]) + 1;
+  const quantityText = item.querySelector('span');
+  const currentQuantity = parseInt(quantityText.textContent.split('x ')[1], 10);
+  const newQuantity = currentQuantity + 1;
 
-  if (changedQuantity <= itemToAdd.quantity) {
-    item.querySelector('span').textContent =
-      itemToAdd.name + ' - ' + itemToAdd.price + '원 x ' + changedQuantity;
-      itemToAdd.quantity--;
-  } else {
+  // 수량 추가 시 재고가 부족할 경우 예외 처리
+  if (newQuantity > itemToAdd.quantity) {
     alert('재고가 부족합니다.');
+    return;
   }
+
+  // 장바구니 아이템 수량 UI 업데이트
+  quantityText.textContent = `${itemToAdd.name} - ${itemToAdd.price}원 x ${newQuantity}`;
+
+  // 재고 감소
+  itemToAdd.quantity--;
 }
 
 function addItemToCart (itemToAdd) {
@@ -364,7 +369,7 @@ addBtn.addEventListener('click', function () {
     }
 
     calcCart();
-    
+
     lastSelectedProductId = selectedItem;
   }
 });
