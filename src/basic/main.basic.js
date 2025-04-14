@@ -105,11 +105,6 @@ function main() {
   startSaleTimer();
 }
 
-function startSaleTimer() {
-  flashSaleTimer();
-  targetSaleTimer();
-}
-
 function flashSaleTimer() {
   setTimeout(function () {
     setInterval(function () {
@@ -142,6 +137,11 @@ function targetSaleTimer() {
       }
     }, 60000);
   }, Math.random() * 20000);
+}
+
+function startSaleTimer() {
+  flashSaleTimer();
+  targetSaleTimer();
 }
 
 function updateSelectedProduct() {
