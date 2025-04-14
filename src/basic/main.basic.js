@@ -297,7 +297,7 @@ const renderBonusPoint = () => {
 
 function updateStockInfo() {
   let infoMsg = '';
-  
+
   productList.forEach(function (item) {
     if (item.quantity < 5) {
       infoMsg +=
@@ -312,45 +312,59 @@ function updateStockInfo() {
 
 main();
 
-addBtn.addEventListener('click', function () {
-  var selectedItem = selectedProduct.value;
-  var itemToAdd = productList.find(function (p) {
-    return p.id === selectedItem;
-  });
-  if (itemToAdd && itemToAdd.quantity > 0) {
-    var item = document.getElementById(itemToAdd.id);
-    if (item) {
-      var newQty =
-        parseInt(item.querySelector('span').textContent.split('x ')[1]) + 1;
-      if (newQty <= itemToAdd.quantity) {
-        item.querySelector('span').textContent =
-          itemToAdd.name + ' - ' + itemToAdd.price + '원 x ' + newQty;
-        itemToAdd.quantity--;
-      } else {
-        alert('재고가 부족합니다.');
-      }
-    } else {
-      const newItemHTML = `
-        <span>${itemToAdd.name} - ${itemToAdd.price}원 x 1</span>
-        <div>
-          <button class="quantity-change bg-blue-500 text-white px-2 py-1 rounded mr-1" data-product-id="${itemToAdd.id}" data-change="-1">-</button>
-          <button class="quantity-change bg-blue-500 text-white px-2 py-1 rounded mr-1" data-product-id="${itemToAdd.id}" data-change="1">+</button>
-          <button class="remove-item bg-red-500 text-white px-2 py-1 rounded" data-product-id="${itemToAdd.id}">삭제</button>
-        </div>
-      `;
-      const newItem = createDomElement(
-        'div',
-        {
-          id: itemToAdd.id,
-          className: 'flex justify-between items-center mb-2',
-        },
-        newItemHTML
-      );
+function addCartItemQuantity (itemToAdd, item) {
+  const changedQuantity =
+    parseInt(item.querySelector('span').textContent.split('x ')[1]) + 1;
 
-      cartDisplay.appendChild(newItem);
+  if (changedQuantity <= itemToAdd.quantity) {
+    item.querySelector('span').textContent =
+      itemToAdd.name + ' - ' + itemToAdd.price + '원 x ' + changedQuantity;
       itemToAdd.quantity--;
+  } else {
+    alert('재고가 부족합니다.');
+  }
+}
+
+function addItemToCart (itemToAdd) {
+  const newItemHTML = `
+    <span>${itemToAdd.name} - ${itemToAdd.price}원 x 1</span>
+    <div>
+      <button class="quantity-change bg-blue-500 text-white px-2 py-1 rounded mr-1" data-product-id="${itemToAdd.id}" data-change="-1">-</button>
+      <button class="quantity-change bg-blue-500 text-white px-2 py-1 rounded mr-1" data-product-id="${itemToAdd.id}" data-change="1">+</button>
+      <button class="remove-item bg-red-500 text-white px-2 py-1 rounded" data-product-id="${itemToAdd.id}">삭제</button>
+    </div>
+  `;
+  const newItem = createDomElement(
+    'div',
+    {
+      id: itemToAdd.id,
+      className: 'flex justify-between items-center mb-2',
+    },
+    newItemHTML
+  );
+
+  cartDisplay.appendChild(newItem);
+  itemToAdd.quantity--;
+}
+
+addBtn.addEventListener('click', function () {
+  const selectedItem = selectedProduct.value;
+  const itemToAdd = productList.find(function (product) {
+    return product.id === selectedItem;
+  });
+
+  if (itemToAdd && itemToAdd.quantity > 0) {
+    const item = document.getElementById(itemToAdd.id);
+    if (item) {
+      // 장바구니에 이미 있는 상품일 경우 수량 증가
+      addCartItemQuantity(itemToAdd, item);
+    } else {
+      // 장바구니에 없는 상품일 경우 상품 추가
+      addItemToCart(itemToAdd);
     }
+
     calcCart();
+    
     lastSelectedProductId = selectedItem;
   }
 });
@@ -368,21 +382,21 @@ cartDisplay.addEventListener('click', function (event) {
     });
     if (target.classList.contains('quantity-change')) {
       var qtyChange = parseInt(target.dataset.change);
-      var newQty =
+      var changedQuantity =
         parseInt(itemElem.querySelector('span').textContent.split('x ')[1]) +
         qtyChange;
       if (
-        newQty > 0 &&
-        newQty <=
+        changedQuantity > 0 &&
+        changedQuantity <=
           prod.quantity +
             parseInt(itemElem.querySelector('span').textContent.split('x ')[1])
       ) {
         itemElem.querySelector('span').textContent =
           itemElem.querySelector('span').textContent.split('x ')[0] +
           'x ' +
-          newQty;
+          changedQuantity;
         prod.quantity -= qtyChange;
-      } else if (newQty <= 0) {
+      } else if (changedQuantity <= 0) {
         itemElem.remove();
         prod.quantity -= qtyChange;
       } else {
