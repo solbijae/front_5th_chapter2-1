@@ -233,12 +233,20 @@ const calculateBulkDiscount = () => {
 
 const calculateSpecialDayDiscount = () => {
   let { discountRate, totalAmount } = calculateBulkDiscount();
+  
+  const today = new Date();
+  const TUESDAY = 2;
+  const isSpecialDay = today.getDay() === TUESDAY;
+  const SPECIAL_DAY_DISCOUNT_RATE = 0.1;
 
-  if (new Date().getDay() === 2) {
-    totalAmount *= 1 - 0.1;
-    discountRate = Math.max(discountRate, 0.1);
+  // 화요일 할인 적용
+  if (isSpecialDay) {
+    totalAmount *= 1 - SPECIAL_DAY_DISCOUNT_RATE;
+    // 기존 할인율과 화요일 할인율 중 더 큰 할인율 적용
+    discountRate = Math.max(discountRate, SPECIAL_DAY_DISCOUNT_RATE);
   }
 
+  // 최종 할인율, 할인 적용 후  총액
   return { discountRate, totalAmount };
 }
 
