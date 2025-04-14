@@ -202,26 +202,32 @@ const getCartOriginalTotal = () => {
     totalAmount += itemTotal * (1 - discount);
   };
 
+  // 할인 전 총액, 개별 할인 적용 후 총액
   return { undiscountedTotal, totalAmount };
 }
 
 const calculateBulkDiscount = () => {
-  let { undiscountedTotal, totalAmount } = getCartOriginalTotal();
+  let { undiscountedTotal, totalAmount: itemDiscountedAmount } = getCartOriginalTotal();
 
-  let discountRate = 0;
-  if (itemCount >= 30) {
-    const bulkDiscount = totalAmount * 0.25;
-    const itemDiscount = undiscountedTotal - totalAmount;
-    if (bulkDiscount > itemDiscount) {
-      totalAmount = undiscountedTotal * (1 - 0.25);
-      discountRate = 0.25;
-    } else {
-      discountRate = (undiscountedTotal - totalAmount) / undiscountedTotal;
-    }
-  } else {
-    discountRate = (undiscountedTotal - totalAmount) / undiscountedTotal;
+  const BULK_DISCOUNT_RATE = 0.25;
+  const isEligibleForBulkDiscount = itemCount >= 30;
+
+  // 대량 할인 적용 시 금액
+  const bulkDiscountedAmount = undiscountedTotal * (1 - BULK_DISCOUNT_RATE);
+
+  // 개별 할인 적용 시 할인율
+  const itemDiscountRate = (undiscountedTotal - itemDiscountedAmount) / undiscountedTotal;
+
+  let totalAmount = itemDiscountedAmount;
+  let discountRate = itemDiscountRate;
+  
+  // 대량 할인 조건을 만족하고, 그 할인이 더 클 경우 대량 할인 적용
+  if (isEligibleForBulkDiscount && bulkDiscountedAmount < itemDiscountedAmount) {
+    totalAmount = bulkDiscountedAmount;
+    discountRate = BULK_DISCOUNT_RATE;
   }
 
+  // 최종 할인율, 할인 적용 후  총액
   return { discountRate, totalAmount };
 }
 
