@@ -162,34 +162,45 @@ function updateSelectedProduct() {
 
 const getCartOriginalTotal = () => {
   totalAmount = 0;
-  itemCount = 0;
+  let undiscountedTotal = 0;
 
   const cartItems = cartDisplay.children;
-  let undiscountedTotal = 0;
   for (let i = 0; i < cartItems.length; i++) {
-    let currentItem;
-    for (let j = 0; j < productList.length; j++) {
-      if (productList[j].id === cartItems[i].id) {
-          currentItem = productList[j];
-          break;
-        }
-      }
-      const itemQuantity = parseInt(
-        cartItems[i].querySelector('span').textContent.split('x ')[1]
-      );
-      const itemTotal = currentItem.price * itemQuantity;
-      let discount = 0;
-      itemCount += itemQuantity;
-      undiscountedTotal += itemTotal;
-      if (itemQuantity >= 10) {
-        if (currentItem.id === 'p1') discount = 0.1;
-        else if (currentItem.id === 'p2') discount = 0.15;
-        else if (currentItem.id === 'p3') discount = 0.2;
-        else if (currentItem.id === 'p4') discount = 0.05;
-        else if (currentItem.id === 'p5') discount = 0.25;
-      }
-      totalAmount += itemTotal * (1 - discount);
-    };
+    // 장바구니 아이템 ID와 일치하는 상품 정보 찾기
+    const cartItem = cartItems[i];
+    const currentItem = productList.find(
+      (product) => product.id === cartItem.id
+    );
+    if (!currentItem) continue;
+
+    // 장바구니 아이템의 수량 추출
+    const itemQuantity = parseInt(
+      cartItem.querySelector('span').textContent.split('x ')[1]
+    );
+
+    // 장바구니 아이템의 총 가격 계산
+    const itemTotal = currentItem.price * itemQuantity;
+    
+    // 총 아이템 수량 업데이트
+    itemCount = 0;
+    itemCount += itemQuantity;
+    
+    // 총 원래 가격 업데이트
+    undiscountedTotal += itemTotal;
+
+    // 10개 이상 구매 시 제품 별 차등 할인 적용
+    let discount = 0;
+    if (itemQuantity >= 10) {
+      if (currentItem.id === 'p1') discount = 0.1;
+      else if (currentItem.id === 'p2') discount = 0.15;
+      else if (currentItem.id === 'p3') discount = 0.2;
+      else if (currentItem.id === 'p4') discount = 0.05;
+      else if (currentItem.id === 'p5') discount = 0.25;
+    }
+
+    // 총 가격 업데이트
+    totalAmount += itemTotal * (1 - discount);
+  };
 
   return { undiscountedTotal, totalAmount };
 }
