@@ -280,7 +280,10 @@ function calcCart() {
 }
 
 const renderBonusPoint = () => {
+  // 보너스 포인트 계산
   bonusPoint = Math.floor(totalAmount / 1000);
+
+  // 보너스 포인트 표시
   let ptsTag = document.getElementById('loyalty-points');
   if (!ptsTag) {
     ptsTag = createDomElement('span', {
