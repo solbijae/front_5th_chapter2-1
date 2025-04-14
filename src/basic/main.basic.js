@@ -241,7 +241,7 @@ const calculateSpecialDayDiscount = () => {
 
   // 화요일 할인 적용
   if (isSpecialDay) {
-    totalAmount *= 1 - SPECIAL_DAY_DISCOUNT_RATE;
+    totalAmount *= 1 - SPECIAL_DAY_DISCOUNT_RATE; // TODO: 여기 로직이 좀 이상한 것 같아서 확인 필요
     // 기존 할인율과 화요일 할인율 중 더 큰 할인율 적용
     discountRate = Math.max(discountRate, SPECIAL_DAY_DISCOUNT_RATE);
   }
@@ -258,7 +258,11 @@ const getCartTotalAmount = () => {
 
 const showCartTotalAmount = () => {
   let { discountRate, totalAmount } = getCartTotalAmount();
+
+  // 총액 표시
   cartTotal.textContent = '총액: ' + Math.round(totalAmount) + '원';
+  
+  // 할인 적용 시 할인율 표시
   if (discountRate > 0) {
     const discountLabel = createDomElement(
       'span',
