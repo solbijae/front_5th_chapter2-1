@@ -326,11 +326,11 @@ function addCartItemQuantity (itemToAdd, item) {
   // 장바구니 아이템 수량 UI 업데이트
   quantityText.textContent = `${itemToAdd.name} - ${itemToAdd.price}원 x ${newQuantity}`;
 
-  // 재고 감소
+  // 아이템이 장바구니에 추가되었으므로 재고 감소
   itemToAdd.quantity--;
 }
 
-function addItemToCart (itemToAdd) {
+function generateCartItem (itemToAdd) {
   const newItemHTML = `
     <span>${itemToAdd.name} - ${itemToAdd.price}원 x 1</span>
     <div>
@@ -339,6 +339,7 @@ function addItemToCart (itemToAdd) {
       <button class="remove-item bg-red-500 text-white px-2 py-1 rounded" data-product-id="${itemToAdd.id}">삭제</button>
     </div>
   `;
+
   const newItem = createDomElement(
     'div',
     {
@@ -349,6 +350,12 @@ function addItemToCart (itemToAdd) {
   );
 
   cartDisplay.appendChild(newItem);
+}
+
+function addItemToCart (itemToAdd) {
+  generateCartItem(itemToAdd);
+
+  // 아이템이 장바구니에 추가되었으므로 재고 감소
   itemToAdd.quantity--;
 }
 
