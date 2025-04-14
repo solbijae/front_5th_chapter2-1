@@ -296,7 +296,8 @@ const renderBonusPoint = () => {
 };
 
 function updateStockInfo() {
-  var infoMsg = '';
+  let infoMsg = '';
+  
   productList.forEach(function (item) {
     if (item.quantity < 5) {
       infoMsg +=
