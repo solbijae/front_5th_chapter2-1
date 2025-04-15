@@ -1,5 +1,5 @@
 import { CartDisplay } from './CartDisplay.js';
-import { CartTitle } from './cartTitle.js';
+import { CartTitle } from './CartTitle.js';
 import { CartTotal } from './CartTotal.js';
 import { SelectedProduct } from './SelectedProduct.js';
 import { AddBtn } from './AddBtn.js';
