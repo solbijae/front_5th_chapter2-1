@@ -12,7 +12,16 @@ export default [
       sourceType: 'module',
       globals: {
         window: 'readonly',
-        document: 'readonly',        
+        document: 'readonly',
+        localStorage: 'readonly',
+        sessionStorage: 'readonly',
+        fetch: 'readonly',
+        alert: 'readonly',
+        confirm: 'readonly',
+        prompt: 'readonly',
+        setTimeout: 'readonly',
+        setInterval: 'readonly',
+        Node: 'readonly',
       },
       parserOptions: {
         ecmaFeatures: {
