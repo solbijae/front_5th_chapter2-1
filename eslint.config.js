@@ -22,6 +22,7 @@ export default [
         setTimeout: 'readonly',
         setInterval: 'readonly',
         Node: 'readonly',
+        console: 'readonly',
       },
       parserOptions: {
         ecmaFeatures: {
