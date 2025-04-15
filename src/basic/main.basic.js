@@ -8,12 +8,14 @@ let cartDisplay = components.CartDisplay();
 const cartTitle = components.CartTitle();
 const cartTotal = components.CartTotal();
 const selectedProduct = components.SelectedProduct();
-SelectedProductStore.set('selectedProduct', selectedProduct);
 const addBtn = components.AddBtn();
 const stockInfo = components.StockInfo();
 
+SelectedProductStore.set('selectedProduct', selectedProduct);
+
 function main() {
-  var root = document.getElementById('app');
+  const root = document.getElementById('app');
+
   const cartWrap = components.CartWrap();
   cartWrap.appendChild(cartTitle);
   cartWrap.appendChild(cartDisplay);
@@ -28,8 +30,8 @@ function main() {
   updateSelectedProduct();
 
   root.appendChild(cartContainer);
-  calcCart();
 
+  calcCart();
   startSaleTimer();
 }
 
