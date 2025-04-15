@@ -1,3 +1,5 @@
+import * as components from './components/index.js';
+
 const productList = [
   { id: 'p1', name: '상품1', price: 10000, quantity: 50 },
   { id: 'p2', name: '상품2', price: 20000, quantity: 30 },
@@ -6,73 +8,12 @@ const productList = [
   { id: 'p5', name: '상품5', price: 25000, quantity: 10 },
 ];
 
-const setProps = (element, props) => {
-  for (const [key, value] of Object.entries(props)) {
-    switch (key) {
-      case 'className':
-        element.className = value;
-        break;
-      case 'style':
-        Object.assign(element.style, value);
-        break;
-      case 'dataset':
-        Object.entries(value).forEach(([dataKey, dataVal]) => {
-          element.dataset[dataKey] = dataVal;
-        });
-        break;
-      default:
-        element.setAttribute(key, value);
-        break;
-    }
-  }
-};
-
-const setChildren = (element, children) => {
-  const isDomNode = (child) => child instanceof Node;
-  const isHTML = (child) => child.trim().startsWith('<'); // TODO: 보안상 문제가 생길 수 있으므로 실제 사용시에는 주의가 필요함
-  const isText = (child) =>
-    typeof child === 'string' || typeof child === 'number';
-
-  children.flat().forEach((child) => {
-    if (isDomNode(child)) return element.appendChild(child);
-    if (isHTML(child)) return (element.innerHTML = child);
-    if (isText(child))
-      return element.appendChild(document.createTextNode(child));
-  });
-};
-
-const createDomElement = (tag, props = {}, ...children) => {
-  const element = document.createElement(tag);
-
-  if (props) setProps(element, props);
-  if (children) setChildren(element, children);
-
-  return element;
-};
-
-let cartDisplay = createDomElement('div', { id: 'cart-items' });
-const cartTitle = createDomElement(
-  'h1',
-  { className: 'text-2xl font-bold mb-4' },
-  '장바구니'
-);
-const cartTotal = createDomElement('div', {
-  id: 'cart-total',
-  className: 'text-xl font-bold my-4',
-});
-const selectedProduct = createDomElement('select', {
-  id: 'product-select',
-  className: 'border rounded p-2 mr-2',
-});
-const addBtn = createDomElement(
-  'button',
-  { id: 'add-to-cart', className: 'bg-blue-500 text-white px-4 py-2 rounded' },
-  '추가'
-);
-const stockInfo = createDomElement('div', {
-  id: 'stock-status',
-  className: 'text-sm text-gray-500 mt-2',
-});
+let cartDisplay = components.CartDisplay();
+const cartTitle = components.CartTitle();
+const cartTotal = components.CartTotal();
+const selectedProduct = components.SelectedProduct();
+const addBtn = components.AddBtn();
+const stockInfo = components.StockInfo();
 
 let lastSelectedProductId,
   bonusPoint = 0,
@@ -81,24 +22,20 @@ let lastSelectedProductId,
 
 function main() {
   var root = document.getElementById('app');
-  const wrap = createDomElement(
-    'div',
-    {
-      className:
-        'max-w-md mx-auto bg-white rounded-xl shadow-md overflow-hidden md:max-w-2xl p-8',
-    },
-    cartTitle,
-    cartDisplay,
-    cartTotal,
-    selectedProduct,
-    addBtn,
-    stockInfo
-  );
-  const cont = createDomElement('div', { className: 'bg-gray-100 p-8' }, wrap);
+  const cartWrap = components.CartWrap();
+  cartWrap.appendChild(cartTitle);
+  cartWrap.appendChild(cartDisplay);
+  cartWrap.appendChild(cartTotal);
+  cartWrap.appendChild(selectedProduct);
+  cartWrap.appendChild(addBtn);
+  cartWrap.appendChild(stockInfo);
+
+  const cartContainer = components.CartContainer();
+  cartContainer.appendChild(cartWrap);
 
   updateSelectedProduct();
 
-  root.appendChild(cont);
+  root.appendChild(cartContainer);
 
   calcCart();
 
@@ -150,15 +87,8 @@ function updateSelectedProduct() {
   selectedProduct.innerHTML = '';
 
   productList.forEach(function (item) {
-    const opt = createDomElement(
-      'option',
-      { value: item.id },
-      item.name + ' - ' + item.price + '원'
-    );
-
-    if (item.quantity === 0) opt.disabled = true;
-
-    selectedProduct.appendChild(opt);
+    const option = components.ItemOption(item);
+    selectedProduct.appendChild(option);
   });
 }
 
@@ -270,11 +200,7 @@ const showCartTotalAmount = () => {
 
   // 할인 적용 시 할인율 표시
   if (discountRate > 0) {
-    const discountLabel = createDomElement(
-      'span',
-      { className: 'text-green-500 ml-2' },
-      '(' + (discountRate * 100).toFixed(1) + '% 할인 적용)'
-    );
+    const discountLabel = components.DiscountRate(discountRate);
     cartTotal.appendChild(discountLabel);
   }
 
@@ -292,15 +218,12 @@ const renderBonusPoint = () => {
   bonusPoint = Math.floor(totalAmount / 1000);
 
   // 보너스 포인트 표시
-  let ptsTag = document.getElementById('loyalty-points');
-  if (!ptsTag) {
-    ptsTag = createDomElement('span', {
-      id: 'loyalty-points',
-      className: 'text-blue-500 ml-2',
-    });
-    cartTotal.appendChild(ptsTag);
+  let pointsTage = document.getElementById('loyalty-points');
+  if (!pointsTage) {
+    pointsTage = components.PointsTag(bonusPoint);
+    cartTotal.appendChild(pointsTage);
   }
-  ptsTag.textContent = '(포인트: ' + bonusPoint + ')';
+  pointsTage.textContent = '(포인트: ' + bonusPoint + ')';
 };
 
 function updateStockInfo() {
@@ -341,24 +264,7 @@ function addCartItemQuantity(itemToAdd, item) {
 }
 
 function generateCartItem(itemToAdd) {
-  const newItemHTML = `
-    <span>${itemToAdd.name} - ${itemToAdd.price}원 x 1</span>
-    <div>
-      <button class="quantity-change bg-blue-500 text-white px-2 py-1 rounded mr-1" data-product-id="${itemToAdd.id}" data-change="-1">-</button>
-      <button class="quantity-change bg-blue-500 text-white px-2 py-1 rounded mr-1" data-product-id="${itemToAdd.id}" data-change="1">+</button>
-      <button class="remove-item bg-red-500 text-white px-2 py-1 rounded" data-product-id="${itemToAdd.id}">삭제</button>
-    </div>
-  `;
-
-  const newItem = createDomElement(
-    'div',
-    {
-      id: itemToAdd.id,
-      className: 'flex justify-between items-center mb-2',
-    },
-    newItemHTML
-  );
-
+  const newItem = components.CartItem(itemToAdd);
   cartDisplay.appendChild(newItem);
 }
 
