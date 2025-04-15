@@ -31,7 +31,6 @@ function generateCartItem(itemToAdd) {
 }
 
 function addItemToCart(itemToAdd) {
-  console.log('itemToAdd', itemToAdd);
   generateCartItem(itemToAdd);
 
   // 아이템이 장바구니에 추가되었으므로 재고 감소
