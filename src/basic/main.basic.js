@@ -259,7 +259,6 @@ const calculateSpecialDayDiscount = () => {
 
 const getCartTotalAmount = () => {
   let { discountRate, totalAmount } = calculateSpecialDayDiscount();
-
   return { discountRate, totalAmount };
 };
 
@@ -278,10 +277,12 @@ const showCartTotalAmount = () => {
     );
     cartTotal.appendChild(discountLabel);
   }
+
+  return totalAmount;
 };
 
 function calcCart() {
-  showCartTotalAmount();
+  totalAmount = showCartTotalAmount();
   updateStockInfo();
   renderBonusPoint();
 }
