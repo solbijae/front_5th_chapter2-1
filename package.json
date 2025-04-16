@@ -8,7 +8,7 @@
     "build": "vite build",
     "preview": "vite preview",
     "start:basic": "vite serve --open ./index.basic.html",
-    "start:advanced": "vite serve --open ./index.advanced.html",
+    "start:advanced": "vite serve --open ./src/advanced/index.html",
     "test": "vitest",
     "test:basic": "vitest basic.test.js",
     "test:advanced": "vitest advanced.test.js",
@@ -18,6 +18,7 @@
     "@eslint/js": "^9.24.0",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/user-event": "^14.6.1",
+    "@vitejs/plugin-react": "^4.4.0",
     "@vitest/ui": "^3.1.1",
     "eslint": "^9.24.0",
     "eslint-config-prettier": "^10.1.2",
@@ -27,5 +28,9 @@
     "prettier": "^3.5.3",
     "vite": "^6.2.6",
     "vitest": "^3.1.1"
+  },
+  "dependencies": {
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0"
   }
 }
