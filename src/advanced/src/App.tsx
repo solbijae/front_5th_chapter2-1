@@ -1,19 +1,12 @@
 import { useEffect, useRef, useState } from 'react';
 
-import { productList } from './data/productList';
+import { Product, productList } from './data/productList';
 import CartItem from './components/CartItem';
 import { calcCart } from './events/calcCart';
 import { updateStockInfo } from './events/updateStockInfo';
 
 export interface Cart {
   [key: string]: number;
-}
-
-interface Product {
-  id: string;
-  name: string;
-  price: number;
-  quantity: number;
 }
 
 const CartApp = () => {
