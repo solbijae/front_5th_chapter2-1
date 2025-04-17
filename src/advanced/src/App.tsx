@@ -3,6 +3,8 @@ import { useEffect, useRef, useState } from 'react';
 import { productList } from './data/productList';
 import CartItem from './components/CartItem';
 import { calcCart } from './events/calcCart';
+import { updateStockInfo } from './events/updateStockInfo';
+
 export interface Cart {
   [key: string]: number;
 }
@@ -30,7 +32,7 @@ const CartApp = () => {
   const loyaltyPointRef = useRef(null);
 
   useEffect(() => {
-    updateStockInfo();
+    setStockInfo(updateStockInfo(prodList));
     const { itemCount, totalAmount, discountRate, bonusPoints } = calcCart(cart, prodList);
     setItemCount(itemCount);
     setTotalAmount(totalAmount);
@@ -66,19 +68,6 @@ const CartApp = () => {
       clearInterval(suggestInterval);
     };
   }, [lastSelected, prodList]);
-
-
-  const updateStockInfo = () => {
-    let infoMsg = '';
-
-    prodList.forEach((item) => {
-      if (item.quantity < 5) {
-        infoMsg += `${item.name}: ${item.quantity > 0 ? `재고 부족 (${item.quantity}개 남음)` : '품절'}\n`;
-      }
-    });
-    
-    setStockInfo(infoMsg);
-  };
 
   const handleAddToCart = () => {
     const itemToAdd = prodList.find((p) => p.id === selected);
