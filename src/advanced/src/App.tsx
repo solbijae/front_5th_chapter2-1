@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 
 import { productList } from './data/productList';
+import CartItem from './components/CartItem';
 
 interface Cart {
   [key: string]: number;
@@ -178,16 +179,13 @@ const CartApp = () => {
             const item = prodList.find((p) => p.id === id);
             if (!item) return null;
             return (
-              <div key={id} id={id} className="flex justify-between items-center mb-2">
-                <span>
-                  {item.name} - {item.price}원 x {qty}
-                </span>
-                <div>
-                  <button className="quantity-change bg-blue-500 text-white px-2 py-1 rounded mr-1" data-product-id={id} data-change="-1" onClick={() => handleQuantityChange(id, -1)}>-</button>
-                  <button className="quantity-change bg-blue-500 text-white px-2 py-1 rounded mr-1" data-product-id={id} data-change="1" onClick={() => handleQuantityChange(id, 1)}>+</button>
-                  <button className="remove-item bg-red-500 text-white px-2 py-1 rounded" data-product-id={id} onClick={() => handleRemoveFromCart(id)}>삭제</button>
-                </div>
-              </div>
+              <CartItem
+                key={id}
+                item={item}
+                quantity={qty}
+                onQuantityChange={handleQuantityChange}
+                onRemove={handleRemoveFromCart}
+              />
             );
           })}
         </div>
