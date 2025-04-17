@@ -17,6 +17,7 @@ export const calcCart = (cart: Cart, prodList: Product[]) => {
     subTotal += itemTotal;
 
     let discount = 0;
+    // 10개 이상 구매시 할인 적용
     if (quantity >= 10) {
       if (product.id === 'p1') discount = 0.1;
       else if (product.id === 'p2') discount = 0.15;
@@ -30,6 +31,7 @@ export const calcCart = (cart: Cart, prodList: Product[]) => {
 
   let rate = 0;
 
+  // 30개 이상 구매시 할인 적용
   if (count >= 30) {
     const bulkDiscount = total * 0.25;
     const itemDiscount = subTotal - total;
@@ -43,9 +45,14 @@ export const calcCart = (cart: Cart, prodList: Product[]) => {
     rate = (subTotal - total) / subTotal;
   }
 
-  if (new Date().getDay() === 2) {
-    total *= 0.9;
-    rate = Math.max(rate, 0.1);
+
+  const today = new Date();
+  const TUESDAY = 2;
+  const isSpecialDay = today.getDay() === TUESDAY;
+  const SPECIAL_DAY_DISCOUNT_RATE = 0.1;
+  if (isSpecialDay) {
+    total *= 1 - SPECIAL_DAY_DISCOUNT_RATE;
+    rate = Math.max(rate, SPECIAL_DAY_DISCOUNT_RATE);
   }
 
   return {
