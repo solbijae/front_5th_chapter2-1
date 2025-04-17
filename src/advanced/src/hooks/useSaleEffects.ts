@@ -9,8 +9,9 @@ export const useSaleEffects = (
   useEffect(() => {
     const lightningInterval = setInterval(() => {
       const saleItem = prodList[Math.floor(Math.random() * prodList.length)];
+      const hasFlashSale = Math.random() < 0.3;
 
-      if (Math.random() < 0.3 && saleItem.quantity > 0) {
+      if (hasFlashSale && saleItem.quantity > 0) {
         saleItem.price = Math.round(saleItem.price * 0.8);
         alert('번개세일! ' + saleItem.name + '이(가) 20% 할인 중입니다!');
         setProdList([...prodList]);
@@ -27,7 +28,9 @@ export const useSaleEffects = (
           alert(
             suggestItem.name + '은(는) 어떠세요? 지금 구매하시면 5% 추가 할인!'
           );
-          suggestItem.price = Math.round(suggestItem.price * 0.95);
+
+          const salePrice = Math.round(suggestItem.price * 0.95);
+          suggestItem.price = salePrice;
           setProdList([...prodList]);
         }
       }
