@@ -14,7 +14,7 @@ const CartApp = () => {
   const [lastSelected, setLastSelected] = useState<string | null>(null);
   const [bonusPoints, setBonusPoints] = useState(0);
   const [totalAmount, setTotalAmount] = useState(0);
-  const [itemCount, setItemCount] = useState(0);
+  const [, setItemCount] = useState(0);
   const [cart, setCart] = useState<Cart>({});
   const [discountRate, setDiscountRate] = useState(0);
   const [stockInfo, setStockInfo] = useState('');
