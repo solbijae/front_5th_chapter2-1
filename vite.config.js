@@ -19,10 +19,17 @@ export default defineConfig({
     },
   },
   build: {
+    outDir: 'dist/advanced',
     rollupOptions: {
       input: {
         main: resolve(__dirname, 'src/advanced/index.html'),
       },
+      output: {
+        entryFileNames: 'assets/[name].js',
+        chunkFileNames: 'assets/[name].js',
+        assetFileNames: 'assets/[name].[ext]',
+      },
     },
   },
+  base: '/advanced/',
 });
