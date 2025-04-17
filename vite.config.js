@@ -7,7 +7,6 @@ import react from '@vitejs/plugin-react';
 const __dirname = fileURLToPath(new URL('.', import.meta.url));
 
 export default defineConfig({
-  root: 'src/advanced',
   plugins: [react()],
   test: {
     globals: true,
