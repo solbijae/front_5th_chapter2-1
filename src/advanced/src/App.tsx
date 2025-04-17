@@ -26,7 +26,10 @@ const CartApp = () => {
 
   useEffect(() => {
     setStockInfo(updateStockInfo(prodList));
-    const { itemCount, totalAmount, discountRate, bonusPoints } = calcCart(cart, prodList);
+    const { itemCount, totalAmount, discountRate, bonusPoints } = calcCart(
+      cart,
+      prodList
+    );
     setItemCount(itemCount);
     setTotalAmount(totalAmount);
     setDiscountRate(discountRate);
@@ -99,9 +102,15 @@ const CartApp = () => {
         <div id="cart-total" ref={sumRef} className="text-xl font-bold my-4">
           총액: {totalAmount}원
           {discountRate > 0 && (
-            <span className="text-green-500 ml-2">({(discountRate * 100).toFixed(1)}% 할인 적용)</span>
+            <span className="text-green-500 ml-2">
+              ({(discountRate * 100).toFixed(1)}% 할인 적용)
+            </span>
           )}
-          <span ref={loyaltyPointRef} id="loyalty-points" className="text-blue-500 ml-2">
+          <span
+            ref={loyaltyPointRef}
+            id="loyalty-points"
+            className="text-blue-500 ml-2"
+          >
             (포인트: {bonusPoints})
           </span>
         </div>
@@ -112,7 +121,11 @@ const CartApp = () => {
           onChange={(e) => setSelected(e.target.value)}
         >
           {prodList.map((item) => (
-            <option key={item.id} value={item.id} disabled={item.quantity === 0}>
+            <option
+              key={item.id}
+              value={item.id}
+              disabled={item.quantity === 0}
+            >
               {item.name} - {item.price}원
             </option>
           ))}
