@@ -45,3 +45,211 @@
 과제를 진행할 떄 AI를 쓰는 것은 자유입니다. 오히려 AI를 활용하는 연습을 해야하는게 시대의 흐름이겠지요.
 다만 AI를 쓰더라도 최대한 조금씩 조금씩 이전 코드와 지금 코드를 그대로 유지하면서 리팩토링하는 감각을 기르기 위함이나,
 AI에게 최대한 조금씩 그러나 구체적으로 요청하며 한번에 많은 코드를 바꾸지 않도록 하는 연습을 해보세요.
+---
+## 배포 링크
+https://front-5th-chapter2-1.netlify.app/
+
+## 과제 체크포인트
+
+### 기본과제
+
+- [x] 코드가 Prettier를 통해 일관된 포맷팅이 적용되어 있는가?
+- [x] 적절한 줄바꿈과 주석을 사용하여 코드의 논리적 단위를 명확히 구분했는가?
+- [x] 변수명과 함수명이 그 역할을 명확히 나타내며, 일관된 네이밍 규칙을 따르는가?
+- [x] 매직 넘버와 문자열을 의미 있는 상수로 추출했는가?
+- [x] 중복 코드를 제거하고 재사용 가능한 형태로 리팩토링했는가?
+- [x] 함수가 단일 책임 원칙을 따르며, 한 가지 작업만 수행하는가?
+- [x] 조건문과 반복문이 간결하고 명확한가? 복잡한 조건을 함수로 추출했는가?
+- [x] 코드의 배치가 의존성과 실행 흐름에 따라 논리적으로 구성되어 있는가?
+- [x] 연관된 코드를 의미 있는 함수나 모듈로 그룹화했는가?
+- [x] ES6+ 문법을 활용하여 코드를 더 간결하고 명확하게 작성했는가?
+- [x] 전역 상태와 부수 효과(side effects)를 최소화했는가?
+- [x] 에러 처리와 예외 상황을 명확히 고려하고 처리했는가?
+- [x] 코드 자체가 자기 문서화되어 있어, 주석 없이도 의도를 파악할 수 있는가?
+- [x] 비즈니스 로직과 UI 로직이 적절히 분리되어 있는가?
+- [x] 코드의 각 부분이 테스트 가능하도록 구조화되어 있는가?
+- [x] 성능 개선을 위해 불필요한 연산이나 렌더링을 제거했는가?
+- [x] 새로운 기능 추가나 변경이 기존 코드에 미치는 영향을 최소화했는가?
+- [x] 코드 리뷰를 통해 다른 개발자들의 피드백을 반영하고 개선했는가?
+- [x] (핵심!) 리팩토링 시 기존 기능을 그대로 유지하면서 점진적으로 개선했는가?
+
+### 심화과제
+
+- [x] 변경한 구조와 코드가 기존의 코드보다 가독성이 높고 이해하기 쉬운가?
+- [x] 변경한 구조와 코드가 기존의 코드보다 기능을 수정하거나 확장하기에 용이한가?
+- [x] 변경한 구조와 코드가 기존의 코드보다 테스트를 하기에 더 용이한가?
+- [x] 변경한 구조와 코드가 기존의 모든 기능은 그대로 유지했는가?
+- [x] (핵심!) 변경한 구조와 코드를 새로운 한번에 새로만들지 않고 점진적으로 개선했는가?
+
+
+## 과제 셀프회고
+
+<!-- 과제에 대한 회고를 작성해주세요 -->
+
+### 과제를 하면서 내가 제일 신경 쓴 부분은 무엇인가요?
+**[ 기본과제 ]**
+
+- 기본과제를 진행하면서 가장 고민한 부분은 **DOM을 그리는 방식과 구조 분리**입니다.
+  - 먼저 DOM의 경우, 처음에에는 createDomElement라는 함수를 만들어서 element 타입, props, children을 보내고 element를 생성하도록 했습니다.
+    
+    ```jsx
+    const setProps = (element, props) => {
+      for (const [key, value] of Object.entries(props)) {
+        switch (key) {
+          case 'className':
+            element.className = value;
+            break;
+          case 'style':
+            Object.assign(element.style, value);
+            break;
+          case 'dataset':
+            Object.entries(value).forEach(([dataKey, dataVal]) => {
+              element.dataset[dataKey] = dataVal;
+            });
+            break;
+          default:
+            element.setAttribute(key, value);
+            break;
+        }
+      }
+    };
+    
+    const setChildren = (element, children) => {
+      const isDomNode = (child) => child instanceof Node;
+      const isHTML = (child) => child.trim().startsWith('<'); // TODO: 보안상 문제가 생길 수 있으므로 실제 사용시에는 주의가 필요함
+      const isText = (child) =>
+        typeof child === 'string' || typeof child === 'number';
+    
+      children.flat().forEach((child) => {
+        if (isDomNode(child)) return element.appendChild(child);
+        if (isHTML(child)) return (element.innerHTML = child);
+        if (isText(child))
+          return element.appendChild(document.createTextNode(child));
+      });
+    };
+    
+    const createDomElement = (tag, props = {}, ...children) => {
+      const element = document.createElement(tag);
+    
+      if (props) setProps(element, props);
+      if (children) setChildren(element, children);
+    
+      return element;
+    };
+    ```
+    
+  - 그런데 테오 코치님의 평일 Q&A 세션을 들으니, 이렇게 되면 더 깔끔해지기는 하지만, 저희가 추구하는 방향인 ‘리액트스럽게’와는 거리가 멀다는 사실을 깨닫게 되었습니다. (설명을 들으니 왜 이걸 생각 못했지 하는 생각이 들었습니다 😭)
+  - 그래서 DOM 관련된 요소를 components폴더로 분리했습니다.
+  - 추가적으로, addEventListener관련도 리액트처럼 handleClick으로 분리해 각각 addBtn과 CartDisplay 컴포넌트 파일에 함께 넣었습니다.
+  - [ ] TODO: createElement를 사용하는 것은 리액트스럽지 못하다는 생각이 들어 innerHTML로 return된 html을 통째로 넣어주는 형식으로 변경해보면 좋을 것 같습니다.
+
+- 두 번째로 고민되었던 부분은 **구조 잡기**입니다. 특히 calCart, addBtn eventListener, cartDisplay eventListener에 많은 내용이 담겨 있어 분해하는게 쉽지 않았습니다.
+  - 그래서 토요지식회에서 공유받았던 tldraw라는 툴을 활용해 분해해야할 부분은 시각화해보았습니다. 항목은 함수명, 내부 주요 내용, return 값을 작성하였습니다.
+    
+    <img width="1519" alt="1 (2)" src="https://github.com/user-attachments/assets/4a52ea53-4444-4d1c-bef5-bdad44ac3eec" />
+    <img width="677" alt="2 (2)" src="https://github.com/user-attachments/assets/585df3bb-059b-4032-a494-7f7af0c0df78" />
+    
+  - cartDisplay의 경우 조금 더 많은 생각이 필요했습니다.
+    - 처음에는 로직을 아래 코드와 같이 변경하였습니다.
+        
+        ```jsx
+        cartDisp.addEventListener('click', function (event) {
+          var tgt = event.target;
+          if (tgt.classList.contains('quantity-change') || tgt.classList.contains('remove-item')) {
+            var prodId = tgt.dataset.productId;
+            var itemElem = document.getElementById(prodId);
+            var prod = prodList.find(function (p) { return p.id === prodId; });
+            ...
+          }
+        });
+        ```
+        
+    - 기능 동작에는 이상이 없었지만, 다음과 같은 **문제점**이 있음을 느꼈습니다.
+        
+        **1. 이벤트 핸들러 내부에 모든 로직이 몰려 있었습니다.**
+        
+        수량 계산, 재고 체크, DOM 조작, 사용자 피드백(alert)까지 한 함수에 몰려 있어 읽기 어렵고, 수정이나 확장이 어렵다는 문제를 느꼈습니다.
+        
+        **2. 중복된 DOM 파싱 코드가 반복되었습니다.**
+        
+        `querySelector('span').textContent.split('x ')[1]`와 같은 로직이 여러 곳에서 반복되었으며, 그로 인해 버그 발생 가능성도 높아졌습니다.
+        
+  - 🔧 **개선 방향 및 리팩토링 내용**
+    
+     1. **Context 객체 도입**
+    
+    `productData`, `cartItemElement`, `cartItemQuantity`, `target` 등을 하나의 `context`로 묶어 처리하여 관련된 데이터의 흐름을 명확하게 파악할 수 있도록 구성하였습니다.
+    
+    ```
+    const context = {
+      productData,
+      cartItemElement,
+      cartItemQuantity,
+      target
+    };
+    ```
+    
+     2. **기능 단위로 함수 분리**
+    
+    - `quantityChange(context)`
+    - `removeItemFromCart(context)`
+    
+    이처럼 기능에 따라 책임을 분리하고 함수명을 명확히 하여, 향후 기능 추가나 테스트가 쉬운 구조로 변경하였습니다.
+
+**[ 심화 과제 ]**
+- 먼저 심화과제를 진행해보니, 마이그레이션하기 쉽도록 고민하면서 짰던 기본과제가 결코 마이그레이션에 용이하지 않음을 깨닫게 되었습니다😭 문제점은 구조는 리액트를 표방했지만, 그 안을 보면 DOM을 그리는 부분이나, 상태를 관리하는 부분 등이 적합하지 않았습니다. 그래서 기본과제를 기반으로 컴포넌트 단위로 가져오는데 오히려 더 헷갈렸습니다.
+- 어떻게하지 정말 막막했는데, 수요일 팀 코어타임 때 학습메이트 송이님께서 본인이 기본 과제를 하실 때는 파일을 나누지 않고 그냥 기본 main.js에서만 작업하셨다는게 생각나서 original.main.js를 참고해서 심화과제를 진행했습니다.
+    오히려 파일이 나뉘지 않아서 마이그레이션은 수월해졌지만, 이게 실제 프로젝트였다면 폴더와 파일 구조가 훨씬 복잡했을텐데 어떻게 했을까..하는 생각이 계속 들었습니다.
+- 또, advanced 폴더에 리액트를 설치하고, 빌드 경로를 잡는게 헷갈렸습니다. 회사에서는 jQuery를 사용하고, 개인적인 프로젝트에서 리액트 경험을 늘려가고 있는데, 하나의 폴더에 자바스크립트와 리액트가 있으니 package.json, vite.config.js, 그리고 html에서 경로를 잡는게 좀 헷갈려서 여러번 수정이 필요했습니다.
+
+### 과제를 다시 해보면 더 잘 할 수 있었겠다 아쉬운 점이 있다면 무엇인가요?
+- 매번 과제 회고를 할 때마다 느끼는거지만, 기획 단계에서 많은 시간 투자가 필요할 것 같습니다. 특히나 리팩토링의 경우 내용 변경이 되지 않아야하는 것이 핵심이기 때문에 코드 흐름에 대해 완벽히 숙지하고 시작하는 것이 중요하다고 느껴졌습니다.
+    또, 변수를 고치다 함수로 돌아가고, UI 를 그리고 왔다갔다 하면서 작업을 하게 되어서, 분명하게 워크 플로우를 정하고 시작했으면 작업하기도 수월하고, 나중에 커밋 히스토리를 보았을 때에도 이해하기 더 쉽지 않았을까 하는 아쉬움이 많이 남습니다.
+
+### 리뷰 받고 싶은 내용이나 궁금한 것에 대한 질문 편하게 남겨주세요 :)
+
+<!--
+피드백 받고 싶은 내용은 가급적 구체적으로 남겨주세요
+모호한 요청은 피드백을 남기기 어렵습니다.
+
+참고링크: https://chatgpt.com/share/675b6129-515c-8001-ba72-39d0fa4c7b62
+
+모호한 요청의 예시)
+- 코드 스타일에 대한 피드백 부탁드립니다.
+- 코드 구조에 대한 피드백 부탁드립니다.
+- 개념적인 오류에 대한 피드백 부탁드립니다.
+- 추가 구현이 필요한 부분에 대한 피드백 부탁드립니다.
+
+구체적인 요청의 예시)
+- 현재 함수와 변수명을 보면 직관성이 떨어지는 것 같습니다. 함수와 변수를 더 명확하게 이름 지을 수 있는 방법에 대해 조언해주실 수 있나요?
+- 현재 파일 단위로 코드가 분리되어 있지만, 모듈화나 계층화가 부족한 것 같습니다. 어떤 기준으로 클래스를 분리하거나 모듈화를 진행하면 유지보수에 도움이 될까요?
+- MVC 패턴을 따르려고 했는데, 제가 구현한 구조가 MVC 원칙에 맞게 잘 구성되었는지 검토해주시고, 보완할 부분을 제안해주실 수 있을까요?
+- 컴포넌트 간의 의존성이 높아져서 테스트하기 어려운 상황입니다. 의존성을 낮추고 테스트 가능성을 높이는 구조 개선 방안이 있을까요?
+-->
+- 테오 코치님께서 발제하실 때 점진적으로 코드를 변경하는걸 강조하셨습니다. 그런데 과제를 진행 할 때 구조 변경을 하다보면 저는 한번에 여러 파일을 건드리게 되어서 결국 커밋 단위가 원하는 것보다 커지곤 합니다.
+    예를 들어, addBtn의 eventHandler를 handleClick으로 분리할 때에도 store를 만들고, 내용을 넣고, 또 변경된 사항을 context가 사용되는 부분에 모두 적용하는 방식으로 진행하였습니다.
+    이 때, **어떤 커밋으로 돌려도 동작해야된다는 점과, 커밋 단위는 작아야한다는 점이 충돌되게 느껴지는 것 같습니다.** 이런 경우에 코치님은 어떻게 작업하시는지 공유해주시면 많은 도움이 될 것 같습니다!
+
+---
+### 🚨 **버전 차이로 인한 오류로 eslint 실행이 되지 않았습니다**
+- **문제 원인:** ESLint 9에서는 기존의 `.eslintrc.js` 파일을 사용하는 방식에서 **Flat Config 방식**으로의 변화가 있었습니다.
+- **이유:** `extends` 구문 등 기존 방식이 더 이상 지원되지 않기 때문에, **ESLint 9 이전 버전에서 작성된 설정 파일을 ESLint 9에서 사용하면 오류가 발생**합니다.
+
+### 💫 **ESLint 9에서 달라진 주요 내용**
+
+1. **새로운 설정 방식 (Flat Config) 도입**
+    - `eslint.config.js` 파일을 사용해야 하며, **배열 형태로 구성**됩니다.
+    - `extends`나 `overrides`와 같은 기존 ESLint 설정 항목을 사용할 수 없습니다.
+    - 대신 **ESLint 패키지를 import**하여 설정을 구성합니다.
+2. **ESLint 설정이 JavaScript 기반으로 변함**
+    - 이제 설정을 **단순한 JSON**이 아닌 **JavaScript 코드**로 작성해야 합니다.
+    - **설정의 유연성**이 크게 향상되었습니다. 필요에 따라 동적으로 설정할 수 있습니다.
+3. **성능 개선**
+    - Flat Config 방식은 성능을 최적화한 새로운 방식으로, 설정을 더 빠르게 읽고 처리할 수 있습니다.
+---
+**🚨 화요일 맞춤 테스트코드 오류 이벤트**
+
+- ‘총액이 올바르게 계산되는지 확인’, ‘포인트가 올바르게 계산되는지 확인’ 부분에서 오류가 나고 있었습니다.
+- 처음에는 전날까지 잘 되던 코드에서 에러가 나서 당황했지만, origin 소스에서도 오류가 나는 점과, 디스코드에서 자고일어나니 오류가났다던 다른 분 이야기가 생각나서 원인은 금방 파악할 수 있었습니다.
+- 화요일이 아닌 날짜에는 올바르게 동작하지만, 화요일의 경우 추가 할인이 들어간다는 점이 반영되어있지 않아, 테스트 실행일이 화요일인지 확인 후 삼항연산자로 분기처리했습니다.
+- 테오 코치님 말씀대로 겪어보지 않았으면 과제하기 급급해 오류가 안나는 테스트 코드는 잘 보지 않았을텐데 이번 기회로 주의해야겠다는 생각이 들었습니다 😂
